@@ -107,49 +107,52 @@ end
 % ================== CONFIGURABLES FOR EACH HOMEWORK ==================
 
 function id = homework_id() 
-  id = '6';
+  id = '7';
 end
 
 function [partNames] = validParts()
-  partNames = { 'Gaussian Kernel', ...
-                'Parameters (C, sigma) for Dataset 3', ...
-                'Email Preprocessing' ...
-                'Email Feature Extraction' ...
+  partNames = { 
+                'Find Closest Centroids (k-Means)', ...
+                'Compute Centroid Means (k-Means)' ...
+                'PCA', ...
+                'Project Data (PCA)', ...
+                'Recover Data (PCA)' ...
                 };
 end
 
 function srcs = sources()
   % Separated by part
-  srcs = { { 'gaussianKernel.m' }, ...
-           { 'dataset3Params.m' }, ...
-           { 'processEmail.m' }, ...
-           { 'emailFeatures.m' } };
+  srcs = { { 'findClosestCentroids.m' }, ...
+           { 'computeCentroids.m' }, ...
+           { 'pca.m' }, ...
+           { 'projectData.m' }, ...
+           { 'recoverData.m' } ...
+           };
 end
 
 function out = output(partId, auxstring)
   % Random Test Cases
-  x1 = sin(1:10)';
-  x2 = cos(1:10)';
-  ec = 'the quick brown fox jumped over the lazy dog';
-  wi = 1 + abs(round(x1 * 1863));
-  wi = [wi ; wi];
+  X = reshape(sin(1:165), 15, 11);
+  Z = reshape(cos(1:121), 11, 11);
+  C = Z(1:5, :);
+  idx = (1 + mod(1:15, 3))';
   if partId == 1
-    sim = gaussianKernel(x1, x2, 2);
-    out = sprintf('%0.5f ', sim);
+    idx = findClosestCentroids(X, C);
+    out = sprintf('%0.5f ', idx(:));
   elseif partId == 2
-    load('ex6data3.mat');
-    [C, sigma] = dataset3Params(X, y, Xval, yval);
-    out = sprintf('%0.5f ', C);
-    out = [out sprintf('%0.5f ', sigma)];
+    centroids = computeCentroids(X, idx, 3);
+    out = sprintf('%0.5f ', centroids(:));
   elseif partId == 3
-    word_indices = processEmail(ec);
-    out = sprintf('%d ', word_indices);
+    [U, S] = pca(X);
+    out = sprintf('%0.5f ', abs([U(:); S(:)]));
   elseif partId == 4
-    x = emailFeatures(wi);
-    out = sprintf('%d ', x);
+    X_proj = projectData(X, Z, 5);
+    out = sprintf('%0.5f ', X_proj(:));
+  elseif partId == 5
+    X_rec = recoverData(X(:,1:5), Z, 5);
+    out = sprintf('%0.5f ', X_rec(:));
   end 
 end
-
 
 % ====================== SERVER CONFIGURATION ===========================
 
