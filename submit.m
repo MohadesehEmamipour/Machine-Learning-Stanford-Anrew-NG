@@ -106,54 +106,51 @@ end
 
 % ================== CONFIGURABLES FOR EACH HOMEWORK ==================
 
-function id = homework_id()
-  id = '1';
+function id = homework_id() 
+  id = '2';
 end
 
 function [partNames] = validParts()
-  partNames = { 'Warm up exercise ', ...
-                'Computing Cost (for one variable)', ...
-                'Gradient Descent (for one variable)', ...
-                'Feature Normalization', ...
-                'Computing Cost (for multiple variables)', ...
-                'Gradient Descent (for multiple variables)', ...
-                'Normal Equations'};
+  partNames = { 'Sigmoid Function ', ...
+                'Logistic Regression Cost', ...
+                'Logistic Regression Gradient', ...
+                'Predict', ...
+                'Regularized Logistic Regression Cost' ...
+                'Regularized Logistic Regression Gradient' ...
+                };
 end
 
 function srcs = sources()
   % Separated by part
-  srcs = { { 'warmUpExercise.m' }, ...
-           { 'computeCost.m' }, ...
-           { 'gradientDescent.m' }, ...
-           { 'featureNormalize.m' }, ...
-           { 'computeCostMulti.m' }, ...
-           { 'gradientDescentMulti.m' }, ...
-           { 'normalEqn.m' }, ...
-         };
+  srcs = { { 'sigmoid.m' }, ...
+           { 'costFunction.m' }, ...
+           { 'costFunction.m' }, ...
+           { 'predict.m' }, ...
+           { 'costFunctionReg.m' }, ...
+           { 'costFunctionReg.m' } };
 end
 
 function out = output(partId, auxstring)
   % Random Test Cases
-  X1 = [ones(20,1) (exp(1) + exp(2) * (0.1:0.1:2))'];
-  Y1 = X1(:,2) + sin(X1(:,1)) + cos(X1(:,2));
-  X2 = [X1 X1(:,2).^0.5 X1(:,2).^0.25];
-  Y2 = Y1.^0.5 + Y1;
+  X = [ones(20,1) (exp(1) * sin(1:1:20))' (exp(0.5) * cos(1:1:20))'];
+  y = sin(X(:,1) + X(:,2)) > 0;
   if partId == 1
-    out = sprintf('%0.5f ', warmUpExercise());
+    out = sprintf('%0.5f ', sigmoid(X));
   elseif partId == 2
-    out = sprintf('%0.5f ', computeCost(X1, Y1, [0.5 -0.5]'));
+    out = sprintf('%0.5f ', costFunction([0.25 0.5 -0.5]', X, y));
   elseif partId == 3
-    out = sprintf('%0.5f ', gradientDescent(X1, Y1, [0.5 -0.5]', 0.01, 10));
+    [cost, grad] = costFunction([0.25 0.5 -0.5]', X, y);
+    out = sprintf('%0.5f ', grad);
   elseif partId == 4
-    out = sprintf('%0.5f ', featureNormalize(X2(:,2:4)));
+    out = sprintf('%0.5f ', predict([0.25 0.5 -0.5]', X));
   elseif partId == 5
-    out = sprintf('%0.5f ', computeCostMulti(X2, Y2, [0.1 0.2 0.3 0.4]'));
+    out = sprintf('%0.5f ', costFunctionReg([0.25 0.5 -0.5]', X, y, 0.1));
   elseif partId == 6
-    out = sprintf('%0.5f ', gradientDescentMulti(X2, Y2, [-0.1 -0.2 -0.3 -0.4]', 0.01, 10));
-  elseif partId == 7
-    out = sprintf('%0.5f ', normalEqn(X2, Y2));
+    [cost, grad] = costFunctionReg([0.25 0.5 -0.5]', X, y, 0.1);
+    out = sprintf('%0.5f ', grad);
   end 
 end
+
 
 % ====================== SERVER CONFIGURATION ===========================
 
