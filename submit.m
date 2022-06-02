@@ -107,54 +107,53 @@ end
 % ================== CONFIGURABLES FOR EACH HOMEWORK ==================
 
 function id = homework_id() 
-  id = '4';
+  id = '5';
 end
 
 function [partNames] = validParts()
-  partNames = { 'Feedforward and Cost Function', ...
-                'Regularized Cost Function', ...
-                'Sigmoid Gradient', ...
-                'Neural Network Gradient (Backpropagation)' ...
-                'Regularized Gradient' ...
+  partNames = { 'Regularized Linear Regression Cost Function', ...
+                'Regularized Linear Regression Gradient', ...
+                'Learning Curve', ...
+                'Polynomial Feature Mapping' ...
+                'Validation Curve' ...
                 };
 end
 
 function srcs = sources()
   % Separated by part
-  srcs = { { 'nnCostFunction.m' }, ...
-           { 'nnCostFunction.m' }, ...
-           { 'sigmoidGradient.m' }, ...
-           { 'nnCostFunction.m' }, ...
-           { 'nnCostFunction.m' } };
+  srcs = { { 'linearRegCostFunction.m' }, ...
+           { 'linearRegCostFunction.m' }, ...
+           { 'learningCurve.m' }, ...
+           { 'polyFeatures.m' }, ...
+           { 'validationCurve.m' } };
 end
 
 function out = output(partId, auxstring)
   % Random Test Cases
-  X = reshape(3 * sin(1:1:30), 3, 10);
-  Xm = reshape(sin(1:32), 16, 2) / 5;
-  ym = 1 + mod(1:16,4)';
-  t1 = sin(reshape(1:2:24, 4, 3));
-  t2 = cos(reshape(1:2:40, 4, 5));
-  t  = [t1(:) ; t2(:)];
+  X = [ones(10,1) sin(1:1.5:15)' cos(1:1.5:15)'];
+  y = sin(1:3:30)';
+  Xval = [ones(10,1) sin(0:1.5:14)' cos(0:1.5:14)'];
+  yval = sin(1:10)';
   if partId == 1
-    [J] = nnCostFunction(t, 2, 4, 4, Xm, ym, 0);
+    [J] = linearRegCostFunction(X, y, [0.1 0.2 0.3]', 0.5);
     out = sprintf('%0.5f ', J);
   elseif partId == 2
-    [J] = nnCostFunction(t, 2, 4, 4, Xm, ym, 1.5);
-    out = sprintf('%0.5f ', J);
+    [J, grad] = linearRegCostFunction(X, y, [0.1 0.2 0.3]', 0.5);
+    out = sprintf('%0.5f ', grad);
   elseif partId == 3
-    out = sprintf('%0.5f ', sigmoidGradient(X));
+    [error_train, error_val] = ...
+        learningCurve(X, y, Xval, yval, 1);
+    out = sprintf('%0.5f ', [error_train(:); error_val(:)]);
   elseif partId == 4
-    [J, grad] = nnCostFunction(t, 2, 4, 4, Xm, ym, 0);
-    out = sprintf('%0.5f ', J);
-    out = [out sprintf('%0.5f ', grad)];
+    [X_poly] = polyFeatures(X(2,:)', 8);
+    out = sprintf('%0.5f ', X_poly);
   elseif partId == 5
-    [J, grad] = nnCostFunction(t, 2, 4, 4, Xm, ym, 1.5);
-    out = sprintf('%0.5f ', J);
-    out = [out sprintf('%0.5f ', grad)];
+    [lambda_vec, error_train, error_val] = ...
+        validationCurve(X, y, Xval, yval);
+    out = sprintf('%0.5f ', ...
+        [lambda_vec(:); error_train(:); error_val(:)]);
   end 
 end
-
 
 % ====================== SERVER CONFIGURATION ===========================
 
