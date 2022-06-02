@@ -107,50 +107,62 @@ end
 % ================== CONFIGURABLES FOR EACH HOMEWORK ==================
 
 function id = homework_id() 
-  id = '7';
+  id = '8';
 end
 
 function [partNames] = validParts()
-  partNames = { 
-                'Find Closest Centroids (k-Means)', ...
-                'Compute Centroid Means (k-Means)' ...
-                'PCA', ...
-                'Project Data (PCA)', ...
-                'Recover Data (PCA)' ...
+  partNames = { 'Estimate Gaussian Parameters', ...
+                'Select Threshold' ...
+                'Collaborative Filtering Cost', ...
+                'Collaborative Filtering Gradient', ...
+                'Regularized Cost', ...
+                'Regularized Gradient' ...
                 };
 end
 
 function srcs = sources()
   % Separated by part
-  srcs = { { 'findClosestCentroids.m' }, ...
-           { 'computeCentroids.m' }, ...
-           { 'pca.m' }, ...
-           { 'projectData.m' }, ...
-           { 'recoverData.m' } ...
+  srcs = { { 'estimateGaussian.m' }, ...
+           { 'selectThreshold.m' }, ...
+           { 'cofiCostFunc.m' }, ...
+           { 'cofiCostFunc.m' }, ...
+           { 'cofiCostFunc.m' }, ...
+           { 'cofiCostFunc.m' }, ...
            };
 end
 
 function out = output(partId, auxstring)
   % Random Test Cases
-  X = reshape(sin(1:165), 15, 11);
-  Z = reshape(cos(1:121), 11, 11);
-  C = Z(1:5, :);
-  idx = (1 + mod(1:15, 3))';
+  n_u = 3; n_m = 4; n = 5;
+  X = reshape(sin(1:n_m*n), n_m, n);
+  Theta = reshape(cos(1:n_u*n), n_u, n);
+  Y = reshape(sin(1:2:2*n_m*n_u), n_m, n_u);
+  R = Y > 0.5;
+  pval = [abs(Y(:)) ; 0.001; 1];
+  yval = [R(:) ; 1; 0];
+  params = [X(:); Theta(:)];
   if partId == 1
-    idx = findClosestCentroids(X, C);
-    out = sprintf('%0.5f ', idx(:));
+    [mu sigma2] = estimateGaussian(X);
+    out = sprintf('%0.5f ', [mu(:); sigma2(:)]);
   elseif partId == 2
-    centroids = computeCentroids(X, idx, 3);
-    out = sprintf('%0.5f ', centroids(:));
+    [bestEpsilon bestF1] = selectThreshold(yval, pval);
+    out = sprintf('%0.5f ', [bestEpsilon(:); bestF1(:)]);
   elseif partId == 3
-    [U, S] = pca(X);
-    out = sprintf('%0.5f ', abs([U(:); S(:)]));
+    [J] = cofiCostFunc(params, Y, R, n_u, n_m, ...
+                       n, 0);
+    out = sprintf('%0.5f ', J(:));
   elseif partId == 4
-    X_proj = projectData(X, Z, 5);
-    out = sprintf('%0.5f ', X_proj(:));
+    [J, grad] = cofiCostFunc(params, Y, R, n_u, n_m, ...
+                             n, 0);
+    out = sprintf('%0.5f ', grad(:));
   elseif partId == 5
-    X_rec = recoverData(X(:,1:5), Z, 5);
-    out = sprintf('%0.5f ', X_rec(:));
+    [J] = cofiCostFunc(params, Y, R, n_u, n_m, ...
+                       n, 1.5);
+    out = sprintf('%0.5f ', J(:));
+  elseif partId == 6
+    [J, grad] = cofiCostFunc(params, Y, R, n_u, n_m, ...
+                             n, 1.5);
+    out = sprintf('%0.5f ', grad(:));
   end 
 end
 
