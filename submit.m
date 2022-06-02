@@ -107,53 +107,49 @@ end
 % ================== CONFIGURABLES FOR EACH HOMEWORK ==================
 
 function id = homework_id() 
-  id = '5';
+  id = '6';
 end
 
 function [partNames] = validParts()
-  partNames = { 'Regularized Linear Regression Cost Function', ...
-                'Regularized Linear Regression Gradient', ...
-                'Learning Curve', ...
-                'Polynomial Feature Mapping' ...
-                'Validation Curve' ...
+  partNames = { 'Gaussian Kernel', ...
+                'Parameters (C, sigma) for Dataset 3', ...
+                'Email Preprocessing' ...
+                'Email Feature Extraction' ...
                 };
 end
 
 function srcs = sources()
   % Separated by part
-  srcs = { { 'linearRegCostFunction.m' }, ...
-           { 'linearRegCostFunction.m' }, ...
-           { 'learningCurve.m' }, ...
-           { 'polyFeatures.m' }, ...
-           { 'validationCurve.m' } };
+  srcs = { { 'gaussianKernel.m' }, ...
+           { 'dataset3Params.m' }, ...
+           { 'processEmail.m' }, ...
+           { 'emailFeatures.m' } };
 end
 
 function out = output(partId, auxstring)
   % Random Test Cases
-  X = [ones(10,1) sin(1:1.5:15)' cos(1:1.5:15)'];
-  y = sin(1:3:30)';
-  Xval = [ones(10,1) sin(0:1.5:14)' cos(0:1.5:14)'];
-  yval = sin(1:10)';
+  x1 = sin(1:10)';
+  x2 = cos(1:10)';
+  ec = 'the quick brown fox jumped over the lazy dog';
+  wi = 1 + abs(round(x1 * 1863));
+  wi = [wi ; wi];
   if partId == 1
-    [J] = linearRegCostFunction(X, y, [0.1 0.2 0.3]', 0.5);
-    out = sprintf('%0.5f ', J);
+    sim = gaussianKernel(x1, x2, 2);
+    out = sprintf('%0.5f ', sim);
   elseif partId == 2
-    [J, grad] = linearRegCostFunction(X, y, [0.1 0.2 0.3]', 0.5);
-    out = sprintf('%0.5f ', grad);
+    load('ex6data3.mat');
+    [C, sigma] = dataset3Params(X, y, Xval, yval);
+    out = sprintf('%0.5f ', C);
+    out = [out sprintf('%0.5f ', sigma)];
   elseif partId == 3
-    [error_train, error_val] = ...
-        learningCurve(X, y, Xval, yval, 1);
-    out = sprintf('%0.5f ', [error_train(:); error_val(:)]);
+    word_indices = processEmail(ec);
+    out = sprintf('%d ', word_indices);
   elseif partId == 4
-    [X_poly] = polyFeatures(X(2,:)', 8);
-    out = sprintf('%0.5f ', X_poly);
-  elseif partId == 5
-    [lambda_vec, error_train, error_val] = ...
-        validationCurve(X, y, Xval, yval);
-    out = sprintf('%0.5f ', ...
-        [lambda_vec(:); error_train(:); error_val(:)]);
+    x = emailFeatures(wi);
+    out = sprintf('%d ', x);
   end 
 end
+
 
 % ====================== SERVER CONFIGURATION ===========================
 
